@@ -48,8 +48,7 @@ TAROT_DECK = [
 ]
 
 # Link ảnh GIF trộn bài công khai
-SHUFFLING_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnZsdmhwdjhpeHhxZjRkdjVmdm41bWxmZG1nZGtrZGxmZG1nZGtkbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26vUtMIs9p4UvH4pG/giphy.gif"
-
+SHUFFLING_GIF_URL = "https://media.tenor.com/qEna2B80T9gAAAAi/tarot-cards.gif"
 # Link ảnh lưng bài chuẩn Rider-Waite
 CARD_BACK_URL = "https://w7.pngwing.com/pngs/632/63/png-transparent-tarot-card-back-wands-pips-major-arcana-tarot-blue-tarot-deck-swords-thumbnail.png"
 
