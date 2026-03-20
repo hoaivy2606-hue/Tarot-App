@@ -13,7 +13,7 @@ from io import BytesIO
 # Khuyến khích: Sử dụng st.secrets để bảo mật.
 # Nếu bạn deploy lên Streamlit Cloud, hãy vào phần settings -> Secrets và dán:
 # [secrets]
-# GOOGLE_API_KEY = "AIzaSyDU2Wz9SwaxzhGMxLey0wHG-MGncl_zCZ0"
+# GOOGLE_API_KEY = "GOOGLE_API_KEY = "DUNG_DANG_API_KEY_THAT_VAO_DAY""
 try:
     GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 except:
