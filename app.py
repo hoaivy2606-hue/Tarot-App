@@ -15,7 +15,7 @@ try:
 except:
     # Nếu chạy local mà chưa có secrets, bạn có thể điền tạm vào đây
     # NHƯNG ĐỪNG COMMIT NÓ LÊN GITHUB
-    GOOGLE_API_KEY = "DUNG_DANG_API_KEY_THAT_VAO_DAY_DE_CHAY_LOCAL"
+    GOOGLE_API_KEY = "AIzaSyBL3z7vn2RJfqJmGpVZMHySdWHSuOO5zVs"
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
