@@ -2,7 +2,7 @@ import streamlit as st
 from google import genai
 import random
 import urllib.parse
-import time # Thêm thư viện để tạo hiệu ứng chờ
+import time
 from PIL import Image
 import requests
 from io import BytesIO
@@ -10,16 +10,12 @@ from io import BytesIO
 # ==========================================
 # 1. CẤU HÌNH API KEY (DÙNG STREAMLIT SECRETS)
 # ==========================================
-# Khuyến khích: Sử dụng st.secrets để bảo mật.
-# Nếu bạn deploy lên Streamlit Cloud, hãy vào phần settings -> Secrets và dán:
-# [secrets]
-# GOOGLE_API_KEY = "GOOGLE_API_KEY = "DUNG_DANG_API_KEY_THAT_VAO_DAY""
 try:
     GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 except:
     # Nếu chạy local mà chưa có secrets, bạn có thể điền tạm vào đây
     # NHƯNG ĐỪNG COMMIT NÓ LÊN GITHUB
-    GOOGLE_API_KEY = "ĐIỀN_TẠM_MÃ_API_VÀO_ĐÂY_ĐỂ_CHẠY_LOCAL"
+    GOOGLE_API_KEY = "DUNG_DANG_API_KEY_THAT_VAO_DAY_DE_CHAY_LOCAL"
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
@@ -47,24 +43,22 @@ TAROT_DECK = [
     "Page of Pentacles", "Knight of Pentacles", "Queen of Pentacles", "King of Pentacles"
 ]
 
-# Link ảnh GIF trộn bài công khai
+# Link ảnh GIF trộn bài Tenor công khai (ổn định hơn Giphy)
 SHUFFLING_GIF_URL = "https://media.tenor.com/qEna2B80T9gAAAAi/tarot-cards.gif"
-# Link ảnh lưng bài chuẩn Rider-Waite
-CARD_BACK_URL = "https://w7.pngwing.com/pngs/632/63/png-transparent-tarot-card-back-wands-pips-major-arcana-tarot-blue-tarot-deck-swords-thumbnail.png"
 
 # ==========================================
 # 3. THIẾT KẾ GIAO DIỆN (UI/UX)
 # ==========================================
 st.set_page_config(page_title="Vũ Trụ Thầm Thì", page_icon="🔮", layout="wide")
 
-# Áp dụng Custom CSS cho Dark Theme, Font chữ huyền bí và Clean Layout
+# Custom CSS cho Dark Theme, Font chữ huyền bí, Clean Layout và sửa lỗi logo sidebar image
 st.markdown("""
 <style>
     /* Tổng thể Dark Theme */
     .stApp {
         background-color: #0d0118;
         color: #f5e6ff;
-        font-family: 'Cinzel', serif; /* Cần Google Font nếu muốn */
+        font-family: 'Cinzel', serif;
     }
     
     /* Font heading */
@@ -77,6 +71,15 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #1a0233;
         border-right: 2px solid #3d0566;
+    }
+    
+    /* Sửa lỗi ảnh logo sidebar không load và CSS gọn gàng hơn */
+    .sidebar-logo {
+        text-align: center;
+        font-size: 5rem;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        display: block;
     }
     
     /* Button style */
@@ -99,6 +102,17 @@ st.markdown("""
         background-color: #2a004d;
         color: #f5e6ff;
         border-color: #3d0566;
+    }
+    
+    /* Định dạng Chữ ký */
+    .signature {
+        font-family: 'Cinzel', serif;
+        font-size: 1.1rem;
+        color: #e6b3ff;
+        text-align: left;
+        margin-top: -15px; /* Điều chỉnh vị trí gần tiêu đề */
+        margin-bottom: 30px;
+        font-weight: bold;
     }
 
     /* Hiển thị lá bài đẹp hơn */
@@ -126,20 +140,23 @@ st.markdown('<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@40
 # sidebar content
 with st.sidebar:
     st.header("🔮 Chào Mừng")
-    st.image("https://via.placeholder.com/300x150.png?text=V%C5%A9+Tr%E1%BB%A5+Th%E1%BB%91ng+Nh%E1%BA%A5t", caption="Gặp Gỡ Mystic Vision") # Có thể thay bằng ảnh thật
+    # Thay logo image bằng một emoji lớn và CSS gọn gàng hơn
+    st.markdown('<div class="sidebar-logo">🔮</div>', unsafe_allow_html=True)
     st.write("Cánh cửa đến với sự thấu hiểu nội tâm đã mở. Hãy tập trung vào vấn đề của bạn, đặt một câu hỏi chân thành và khi đã sẵn sàng, hãy bấm nút rút bài.")
+    st.write("---")
+    st.header("⚙️ Cài đặt Trải bài")
+    tarot_theme = st.selectbox("Chọn Phong cách Hình ảnh:", ["Classic (Rider-Waite)", "Cyberpunk Tarot", "Anime Ghibli Tarot", "Tranh sơn dầu Phục hưng"], index=1)
     st.write("---")
     st.header("💖 Câu Hỏi Hàng Ngày")
     if st.button("Lời khuyên từ vũ trụ hôm nay"):
         # Tính năng câu hỏi nhanh hàng ngày
         st.session_state.today_guidance = True
         user_question = "Hôm nay tôi cần tập trung năng lượng vào điều gì?"
-    st.write("---")
-    st.header("⚙️ Cài đặt Trải bài")
-    tarot_theme = st.selectbox("Chọn Phong cách Hình ảnh:", ["Classic (Rider-Waite)", "Cyberpunk Tarot", "Anime Ghibli Tarot", "Tranh sơn dầu Phục hưng"], index=1)
-    
+        
 # Main content area
-st.title("🌌 Vũ Trụ Thầm Thì: Mystic Vision (Bản Đầy Đủ 78 Lá)")
+st.title("🌌 Vũ Trụ Thầm Thì: Mystic Vision")
+# Thêm chữ ký với định dạng Markdown và CSS
+st.markdown('<div class="signature">thực hiện bởi @nkhang036</div>', unsafe_allow_html=True)
 st.write("Cánh cửa thấu hiểu nội tâm đã mở. Hãy đặt một câu hỏi chân thành.")
 
 # Ô nhập câu hỏi
@@ -163,7 +180,7 @@ if st.button("Rút 3 Lá Bài & Bắt đầu Hành Trình"):
                     drawn_cards.append(f"{card} (Ngược)")
                 else:
                     drawn_cards.append(f"{card} (Xuôi)")
-            
+                    
             # Hiển thị hiệu ứng trộn bài
             col_shuffle = st.columns([1, 1, 1])
             with col_shuffle[1]:
@@ -173,22 +190,22 @@ if st.button("Rút 3 Lá Bài & Bắt đầu Hành Trình"):
             time.sleep(2)
             
             # --- CÂU LỆNH CHO GEMINI (PROMPT) ---
+            # Nâng cấp logic bói bài: trung thực, kĩ càng, nói thẳng vấn đề
             system_prompt = f"""
-            Bạn là một Master Tarot tên là Mystic Vision. Văn phong bí ẩn, thấu cảm và truyền cảm hứng.
+            Bạn là một Master Tarot kì cựu tên là Mystic Vision. Văn phong trung thực, kĩ càng, nói thẳng vấn đề, không sợ người khác phải buồn vì kết quả bói toán.
             Người dùng vừa hỏi: '{user_question}'
             Họ bốc được 3 lá bài theo thứ tự Quá Khứ - Hiện Tại - Tương Lai là: 
-            1. {drawn_cards[0]}
-            2. {drawn_cards[1]}
-            3. {drawn_cards[2]}
+            1. {drawn_cards[0]} (Reversed if applicable)
+            2. {drawn_cards[1]} (Reversed if applicable)
+            3. {drawn_cards[2]} (Reversed if applicable)
             
-            Hãy giải nghĩa thật sâu sắc, rành mạch từng lá bài, phân tích sự liên kết giữa chúng 
-            và đưa ra lời khuyên tổng kết. 
+            Hãy giải nghĩa thật kĩ càng từng lá bài, phân tích sâu sắc mối liên hệ giữa chúng dưới góc độ nhân quả, sự thật trần trụi và không bao che. Đừng dùng những lời lẽ truyền cảm hứng sáo rỗng. Hãy nói thẳng vấn đề mà người dùng cần phải đối mặt.
             
             Yêu cầu định dạng lời giải:
-            - Sử dụng Markdown để tạo các tiêu đề (Heading) cho từng lá bài (VD: ## Lá bài thứ 1: [Tên Lá Bài] - Quá Khứ).
-            - Bôi đậm các từ khóa quan trọng.
-            - Phân tích mối liên hệ giữa các lá bài dưới dạng một câu chuyện.
-            - Lời khuyên tổng kết rõ ràng dưới dạng một danh sách (VD: 1, 2, 3).
+            - Sử dụng Markdown để tạo các tiêu đề (Heading) rõ ràng cho từng phần.
+            - Bôi đậm các từ khóa quan trọng liên quan đến sự thật cần đối mặt.
+            - Phân tích mối liên hệ giữa các lá bài dưới dạng một câu chuyện logic về nhân quả.
+            - Đưa ra lời khuyên thực tế, cụ thể và thẳng thắn, không bao che.
             """
             
             try:
@@ -200,43 +217,33 @@ if st.button("Rút 3 Lá Bài & Bắt đầu Hành Trình"):
                 interpretation = response.text
                 
                 # --- 2. GỌI API ĐỂ TẠO HÌNH ẢNH TRỰC QUAN TỔNG THỂ ---
-                # Nâng cấp prompt tạo ảnh để chất lượng cao hơn
-                image_prompt = f"Digital art, masterpiece, high quality, highly detailed, octane render, unreal engine style, in {tarot_theme} style. A single coherent mystical scene combining the concepts of 3 tarot cards: {drawn_cards[0]}, {drawn_cards[1]}, {drawn_cards[2]}. Moody lighting, spiritual atmosphere, highly artistic."
+                # Nâng cấp prompt tạo ảnh để chất lượng cao hơn và phản ánh không khí kĩ càng, nói thẳng vấn đề
+                image_prompt = f"Digital fantasy art, masterpiece, high quality, highly detailed, octane render, unreal engine style, in {tarot_theme} style. A single coherent mystical scene synthesizing the core concepts, symbols, and atmosphere of the 3 tarot cards: {drawn_cards_raw[0]}, {drawn_cards_raw[1]}, {drawn_cards_raw[2]}. The overall vibe should be dark and confronting yet truthful. Moody lighting, spiritual atmosphere, highly artistic."
                 
                 encoded_prompt = urllib.parse.quote(image_prompt)
                 image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1280&height=720&nologo=true"
                 
-                # --- 3. HIỂN THỊ KẾT QUẢ ---
-                # st.success(f"Đã rút thành công: {cards_text}")
-                
+                # --- 3. HIỂN THỊ KẾT QUẢ (Đồng bộ, Lớn, Rõ ràng) ---
                 # Giao diện chính sau khi rút bài
                 st.write("---")
                 
-                # Phần 1: Tầm Nhìn Trực Quan (Large image)
-                st.subheader("I. Tầm Nhìn Trực Quan Về Trải Bài")
-                st.image(image_url, caption=f"Bức tranh tổng hợp năng lượng cho trải bài của bạn (Phong cách: {tarot_theme})", use_container_width=True)
-                
-                # Giao diện chính cho phần Giải bài
-                st.write("---")
-                st.subheader("II. Thông Điệp Từ Vũ Trụ")
-                
-                # Chia màn hình làm 2 cột cho phần giải bài
-                col1, col2 = st.columns([1, 1.5]) # Cột 2 rộng hơn cho văn bản
+                # Chia màn hình làm 2 cột: Cột 1 cho Hình ảnh trực quan (lớn), Cột 2 cho Lời giải (rộng hơn)
+                col1, col2 = st.columns([1, 1])
 
                 with col1:
-                    st.subheader("Tầm Nhìn Trực Quan Về Trải Bài")
+                    st.subheader("I. Tầm Nhìn Trực Quan Về Trải Bài")
+                    # Hiển thị ảnh vừa tạo, lớn và rõ ràng
                     st.image(image_url, caption=f"Bức tranh tổng hợp năng lượng cho trải bài của bạn (Phong cách: {tarot_theme})", use_container_width=True)
                 
                 with col2:
-                    st.subheader("Thông Điệp Từ Vũ Trụ")
+                    st.subheader("II. Thông Điệp Từ Vũ Trụ")
                     st.write(interpretation)
 
-                
                 # Phần chân trang
                 st.write("---")
                 st.markdown("""
                 <div class="footer">
-                    Mystic Vision &copy; 2023 | Trải nghiệm bói Tarot AI<br>
+                    Mystic Vision &copy; 2023 | Trải nghiệm bói Tarot AI kĩ càng | Chữ ký: performed by @nkhang036<br>
                     <i>Lưu ý: Bói Tarot chỉ mang tính chất tham khảo, hãy luôn lắng nghe tiếng nói nội tâm và tự chịu trách nhiệm cho các quyết định của mình.</i>
                 </div>
                 """, unsafe_allow_html=True)
